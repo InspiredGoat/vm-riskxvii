@@ -4,7 +4,7 @@ CC = gcc
 
 CFLAGS     = -c -Wall -Wvla -Werror -Oz -g -std=c11
 ASAN_FLAGS = #-fsanitize=address
-SRC        = main.c util.c instruction.c memory.c
+SRC        = main.c
 OBJ        = $(SRC:.c=.o)
 
 all:$(TARGET)
