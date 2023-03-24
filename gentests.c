@@ -2,10 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "types.h"
-#include "util.h"
-#include "instructions.h"
-
+#include "virtual_machine.h"
 
 
 typedef struct {
