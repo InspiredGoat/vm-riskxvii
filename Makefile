@@ -2,9 +2,9 @@ TARGET = vm_riskxvii
 
 CC = gcc
 
-CFLAGS     = -c -Wall -Wvla -Werror -O0 -g -std=c11
+CFLAGS     = -DDEBUG_PRINT_INSTRUCTIONS -c #-Wall -Wvla -Werror -O0 -g -std=c11
 ASAN_FLAGS = -fsanitize=address
-SRC        = vm_riskxvii.c
+SRC        = main.c util.c
 OBJ        = $(SRC:.c=.o)
 
 all:$(TARGET)
@@ -17,11 +17,14 @@ $(TARGET):$(OBJ)
 .c.o:
 	 $(CC) $(CFLAGS) $(ASAN_FLAGS) $<
 
-run:
+try: all
+	./$(TARGET)
+
+again: clean all
 	./$(TARGET)
 
 test:
-	echo what are we testing?!
+	gcc 
 
 clean:
 	rm -f *.o *.obj $(TARGET)
