@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     byte* memory = malloc(TOTAL_MEM_SIZE);
 
     u32*  instruction_memory  = (u32*) &memory[0];
-    /* byte* data_memory         = &memory[INSTRUCTION_MEMORY_SIZE]; */
+    byte* data_memory         = &memory[INSTRUCTION_MEMORY_SIZE];
     /* byte* dynamic_memory      = &memory[0xb700]; */
     /* MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700]; */
     byte dynamic_banks_bit_array = 0; // stores whether or not a bank is used as a bit.
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
         unsigned int bytes_read_length = 0;
 
         bytes_read_length  = fread(instruction_memory, 1, INSTRUCTION_MEMORY_SIZE, input_file);
-        bytes_read_length += fread(instruction_memory, 1, DATA_MEMORY_SIZE, input_file);
+        bytes_read_length += fread(data_memory, 1, DATA_MEMORY_SIZE, input_file);
 
         fclose(input_file);
         if (bytes_read_length != INSTRUCTION_MEMORY_SIZE + DATA_MEMORY_SIZE) {
