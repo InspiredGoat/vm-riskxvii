@@ -3,6 +3,9 @@
 #include <stdio.h>
 
 #include "virtual_machine.h"
+#include "memory.c"
+#include "util.c"
+#include "instruction.c"
 
 typedef struct {
     byte data[64];
