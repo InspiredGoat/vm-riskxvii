@@ -92,6 +92,7 @@ int main(int argc, char** argv) {
         u32 instruction_data = instruction_memory[program_counter / 4];
         VirtualInstructionName virt_instruction = VIRTUAL_NONE;
         byte failed_memory = 0;
+        byte jumped = 0;
 
         in = instruction_decode(instruction_data);
 
@@ -122,8 +123,7 @@ int main(int argc, char** argv) {
                 R[in.rd] = R_CAST(R[in.rs1], RT[in.rs1]) - R_CAST(R[in.rs2], RT[in.rs2]);
                 break;
             case LUI:
-                // TODO: check correctness
-                R[in.rd] = (in.imm & 0xfffff000);
+                R[in.rd] = (in.imm >> 12);
                 break;
             case XOR:
                 R[in.rd] = R_CAST(R[in.rs1], RT[in.rs1]) ^ R_CAST(R[in.rs2], RT[in.rs2]);
@@ -171,7 +171,8 @@ int main(int argc, char** argv) {
             case LW:
                 {
                 i32 val = 0;
-                failed_memory &= get_mem_u32(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
+
+                failed_memory &= get_mem_i32(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
                 RT[in.rd] = R_I32_FLAG;
                 }
@@ -193,7 +194,9 @@ int main(int argc, char** argv) {
                 }
                 break;
             case SB:
+                {
                 failed_memory &= set_mem_byte(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
+                }
                 break;
             case SH:
                 failed_memory &= set_mem_u16( memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
@@ -215,44 +218,54 @@ int main(int argc, char** argv) {
                 break;
             case BEQ:
                 if (R[in.rs1] == R[in.rs2]) {
-                    program_counter += in.imm << 1;
+                    /* printf("%i == %i, jumping to %i\n\n", R[in.rs1], R[in.rs2], in.imm ); */
+                    program_counter += in.imm;
+                    jumped = 1;
                 }
                 break;
             case BNE:
                 if (R[in.rs1] != R[in.rs2]) {
-                    program_counter += in.imm << 1;
+                    program_counter += in.imm;
+                    jumped = 1;
                 }
                 break;
             case BLT:
                 if ((signed)R[in.rs1] < (signed)R[in.rs2]) {
-                    program_counter += in.imm << 1;
+                    program_counter += in.imm;
+                    jumped = 1;
                 }
                 break;
             case BLTU:
                 if ((unsigned)R[in.rs1] < (unsigned)R[in.rs2]) {
-                    program_counter += in.imm << 1;
+                    program_counter += in.imm;
+                    jumped = 1;
                 }
                 break;
             case BGE:
                 if ((signed)R[in.rs1] >= (signed)R[in.rs2]) {
                     program_counter += in.imm << 1;
+                    jumped = 1;
                 }
                 break;
             case BGEU:
                 if ((unsigned)R[in.rs1] >= (unsigned)R[in.rs2]) {
-                    program_counter += in.imm << 1;
+                    program_counter += in.imm;
+                    jumped = 1;
                 }
                 break;
             case JAL:
                 R[in.rd] = program_counter + 4;
                 // TODO: check if its (in.imm << 1) or not
                 program_counter += in.imm ;
+                jumped = 1;
                 break;
             case JALR:
                 R[in.rd] = program_counter + 4;
                 program_counter = R[in.rs1] + in.imm;
+                jumped = 1;
                 break;
         }
+
 
         if (should_terminate || failed_memory)
             break;
@@ -305,7 +318,7 @@ int main(int argc, char** argv) {
 
         executed_instructions_count = executed_instructions_count + 1;
 
-        if (in.name != JAL && in.name != JALR)
+        if (!jumped)
             program_counter += 4;
     }
 

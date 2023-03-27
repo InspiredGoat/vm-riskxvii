@@ -2,7 +2,7 @@
 
 
 Instruction instruction_decode(u32 data) {
-    Instruction instruction = { INSTRUCTION_INVALID, TYPE_INVALID, (byte)-1, (byte)-1, (byte)-1, (u16)-1 }; // initialize all values, don't want any nasty bugs!
+    Instruction instruction = { INSTRUCTION_INVALID, TYPE_INVALID, (byte)-1, (byte)-1, (byte)-1, (u16)-1, 0 }; // initialize all values, don't want any nasty bugs!
     InstructionType type = TYPE_INVALID;
     byte opcode, func3, func7 = 0;
         
@@ -40,11 +40,11 @@ Instruction instruction_decode(u32 data) {
         instruction.imm |= ((0b00000000000000000000000010000000) & data) << 4;
         instruction.imm |= ((0b10000000000000000000000000000000) & data) >> 19;
         instruction.imm |= ((0b01111110000000000000000000000000) & data) >> 20;
-
-        /* ((...........................1111.) & data) >> 7; */
-        /* ((....................1...........) & data) << 4; */
-        /* ((...................1............) & data) >> 19; */
-        /* ((.....................111111.....) & data) >> 20; */
+        
+        if ((instruction.imm >= (2 << 11))) {
+            instruction.imm = instruction.imm - (2 << 12);
+        }
+        instruction.imm_len = 13;
         }
     }
     else {
@@ -54,6 +54,7 @@ Instruction instruction_decode(u32 data) {
     if (type == TYPE_U || type == TYPE_UJ) {
         if (type == TYPE_U) {
         instruction.imm  = ((0b11111111111111111111000000000000) & data) >> 12;
+        instruction.imm_len = 32;
         }
         else {
         /* instruction.imm  = ((0b10000000000000000000000000000000) & data) >> 11; */
@@ -63,7 +64,13 @@ Instruction instruction_decode(u32 data) {
         instruction.imm  = ((0b10000000000000000000000000000000) & data) >> 11;
         instruction.imm |= ((0b01111111111000000000000000000000) & data) >> 20;
         instruction.imm |= ((0b00000000000100000000000000000000) & data) >> 9;
-        instruction.imm |= ((0b00000000000011111111000000000000) & data) >> 1;
+        instruction.imm |= ((0b00000000000011111111000000000000) & data) >> 0;
+        instruction.imm_len = 21;
+
+        if (instruction.imm >= (2 << 19)) {
+            instruction.imm = instruction.imm - (2 << 20);
+            instruction.imm = instruction.imm << 1;
+        }
         }
     }
     else {
@@ -75,6 +82,11 @@ Instruction instruction_decode(u32 data) {
     }
     else if (type == TYPE_I) {
         instruction.imm = ((0b11111111111100000000000000000000) & data) >> 20;
+
+        if (instruction.imm > (2 << 10)) {
+            instruction.imm = instruction.imm - (2 << 11);
+        }
+        instruction.imm_len = 12;
     }
 
     // Find instruction names
