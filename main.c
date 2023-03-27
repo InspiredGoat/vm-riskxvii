@@ -7,17 +7,18 @@
 #include "util.c"
 #include "instruction.c"
 
+#define DEBUG_PRINT_INSTRUCTIONS
+
 typedef struct {
     byte data[64];
 } MemoryBank;
 
 int main(int argc, char** argv) {
 
-    /* if (argc != 2) { */
-    /*     printf("Error, no input file\n"); */
-    /*     return 1; */
-    /* } */
-
+    if (argc != 2) {
+        printf("Error, no input file\n");
+        return 1;
+    }
 
     byte should_terminate = 0;
     u32 program_counter = 0;
@@ -25,9 +26,9 @@ int main(int argc, char** argv) {
 
     // 3 bits per register type == 24 bytes
     byte RT[32];
+    memset(R, 0, 32);
     memset(RT, 0, 32);
 
-#define TOTAL_MEM_SIZE INSTRUCTION_MEMORY_SIZE + DATA_MEMORY_SIZE + 0xff + (128 * 64)
     byte* memory = malloc(TOTAL_MEM_SIZE);
 
     u32*  instruction_memory  = (u32*) &memory[0];
@@ -39,6 +40,7 @@ int main(int argc, char** argv) {
     memset(memory, 0, TOTAL_MEM_SIZE);
 
     // Scope to avoid using input_file pointer again
+
     {
         FILE* input_file = fopen(argv[1], "r");
         if (input_file == NULL) {
@@ -64,7 +66,8 @@ int main(int argc, char** argv) {
     /*           rd            00000000000000000000111110000000; */
     /*           rs1           00000000000011111000000000000000; */
     /*           func3         00000000000000000111000000000000; */
-    /* instruction_memory[0]  = 0x69696969; */
+
+    /* instruction_memory[0]  = 0x7ff00113; */
     /* instruction_memory[1]  = 0x00c000ef; */
     /* instruction_memory[2]  = 0x000017b7; */
     /* instruction_memory[3]  = 0x80078623; */
@@ -79,11 +82,13 @@ int main(int argc, char** argv) {
     /* instruction_memory[11] = 0x00008067; */
 
 #ifdef DEBUG_PRINT_INSTRUCTIONS
-    printf("Code\t\tName\tRd\tR1\tR2\tImm\n");
+    printf("PC\tCode\t\tName\tRd\tR1\tR2\tImm\n");
 #endif
 
+        u64 executed_instructions_count = 0;
     while(program_counter < INSTRUCTION_MEMORY_SIZE) {
         Instruction in;
+        // TODO: check program counter is valid
         u32 instruction_data = instruction_memory[program_counter / 4];
         VirtualInstructionName virt_instruction = VIRTUAL_NONE;
         byte failed_memory = 0;
@@ -91,7 +96,9 @@ int main(int argc, char** argv) {
         in = instruction_decode(instruction_data);
 
 #ifdef DEBUG_PRINT_INSTRUCTIONS
+        printf("%i\t", program_counter);
         print_int_as_hex_string(instruction_data);
+        putchar('\t');
         instruction_print_summary(in, stdout);
 #endif
 
@@ -116,7 +123,7 @@ int main(int argc, char** argv) {
                 break;
             case LUI:
                 // TODO: check correctness
-                R[in.rd] = (in.imm & 0xffff0000) - R[in.rs2];
+                R[in.rd] = (in.imm & 0xfffff000);
                 break;
             case XOR:
                 R[in.rd] = R_CAST(R[in.rs1], RT[in.rs1]) ^ R_CAST(R[in.rs2], RT[in.rs2]);
@@ -163,10 +170,10 @@ int main(int argc, char** argv) {
                 break;
             case LW:
                 {
-                u32 val = 0;
+                i32 val = 0;
                 failed_memory &= get_mem_u32(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
-                RT[in.rd] = R_U32_FLAG;
+                RT[in.rd] = R_I32_FLAG;
                 }
                 break;
             case LBU:
@@ -237,34 +244,35 @@ int main(int argc, char** argv) {
                 }
                 break;
             case JAL:
-                R[in.rs1] = program_counter + 4;
-                program_counter += in.imm << 1;
+                R[in.rd] = program_counter + 4;
+                // TODO: check if its (in.imm << 1) or not
+                program_counter += in.imm ;
                 break;
             case JALR:
-                R[in.rs1] = program_counter + 4;
-                program_counter += R[in.rs1] + in.imm;
+                R[in.rd] = program_counter + 4;
+                program_counter = R[in.rs1] + in.imm;
                 break;
         }
 
         if (should_terminate || failed_memory)
             break;
 
-        if (program_counter > 40)
-            break;
+        /* if (executed_instructions_count >= 10) */
+        /*     break; */
 
-        if (virt_instruction == VIRTUAL_NONE) {
+        if (virt_instruction != VIRTUAL_NONE) {
             switch(virt_instruction) {
                 case VIRTUAL_NONE: break;
                 case VIRTUAL_COUNT: break;
                 case VIRTUAL_INVALID: break;
                 case VIRTUAL_PRINT_CHAR:
-                    putchar((byte)memory[address_from_virtual(virt_instruction)]);
+                    putchar((byte)memory[0x800]);
                     break;
                 case VIRTUAL_PRINT_SINT:
-                    printf("%i\n", (i32)memory[address_from_virtual(virt_instruction)]);
+                    printf("%i", (i32)memory[address_from_virtual(virt_instruction)]);
                     break;
                 case VIRTUAL_PRINT_UINT:
-                    printf("%x\n", memory[address_from_virtual(virt_instruction)]);
+                    printf("%x", memory[address_from_virtual(virt_instruction)]);
                     break;
                 case VIRTUAL_HALT:
                     printf("CPU Halt Requested\n");
@@ -287,13 +295,18 @@ int main(int argc, char** argv) {
                     printf("%x\n", memory[address_from_virtual(virt_instruction)]);
                     break;
                 case VIRTUAL_HEAP_ALLOC:
+                    // TODO: add this
                     break;
                 case VIRTUAL_HEAP_FREE:
+                    // TODO: add this
                     break;
             }
         }
 
-        program_counter += 4;
+        executed_instructions_count = executed_instructions_count + 1;
+
+        if (in.name != JAL && in.name != JALR)
+            program_counter += 4;
     }
 
     register_dump(program_counter, &R[0]);

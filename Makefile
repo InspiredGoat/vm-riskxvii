@@ -2,7 +2,7 @@ TARGET = vm_riskxvii
 
 CC = gcc
 
-CFLAGS     = -c -Wall -Wvla -Werror -Oz
+CFLAGS     = -c -Oz #-Wall -Wvla -Werror
 ASAN_FLAGS = #-fsanitize=address
 SRC        = main.c
 OBJ        = $(SRC:.c=.o)
@@ -21,7 +21,7 @@ try: all
 	./$(TARGET)
 
 again: clean all
-	./$(TARGET)
+	echo done
 
 test:
 	gcc 

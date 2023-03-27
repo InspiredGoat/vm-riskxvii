@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "virtual_machine.h"
-
+#include "instruction.c"
+#include "memory.c"
+#include "util.c"
 
 typedef struct {
     FILE*   blob_file;
@@ -17,6 +20,14 @@ typedef struct {
 } Test;
 
 u32 instruction_encode(Instruction i) {
+    switch(i.type) {
+        case TYPE_INVALID: 
+            assert(0); 
+            break;
+        case TYPE_I:
+
+            break;
+    }
     return 0;
 }
 
@@ -47,19 +58,43 @@ void test_next(const char* name) {
 void test_blob_add_instruction(u32 instruction) {
 }
 void test_blob_add_data(byte* data, u32 count) {
+
 }
 void test_expected_add_result(char* text) {
+
 }
 void test_expected_add_pc_dump(u32 pc) {
+
 }
 void test_expected_add_reg_dump(u32 pc, u32* registers) {
+    printf("PC: %x\n", pc);
+    for (int i = 0; i < 32; i++) {
+        printf("R%i: %x\n",i, registers[i]);
+    }
 }
 void test_expected_add_word_dump(u32 val) {
+
 }
 
 
 int main() {
+    Instruction in;
 
+    printf("Running Assertions...\n");
+    printf("total memory size %u\n", TOTAL_MEM_SIZE);
+
+    in = instruction_decode(0x02078c63);
+    printf("%#x, %i\n", in.imm, in.imm);
+
+    in = instruction_decode(0xfe0798e3);
+    assert(in.name == BNE);
+    assert(in.type == TYPE_SB);
+    assert(in.rd == (byte)-1);
+    assert(in.rs1 == 15);
+    assert(in.rs2 == 0);
+    printf("%#x\n", 0xfe0798e3);
+    printf("%#x, %i\n", in.imm, (i32)((0x0ff1) % INSTRUCTION_MEMORY_SIZE));
+    assert(in.imm == 0x40);
     // generate test files
 
     // format

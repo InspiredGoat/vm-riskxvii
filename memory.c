@@ -8,17 +8,19 @@
 // Returns 0 if invalid memory, 1 if valid, 2 if a virtual isntruction was called
 byte set_memory(void* memory, byte mem_bank_bits, u32 address, void* data, u32 length, VirtualInstructionName* ret_virt_instruction) {
     *ret_virt_instruction = VIRTUAL_NONE;
-    if (address < 0x400 || address + length > (0xD700))
+    if (address < 0x0400 || address + length > (0xD700)) {
         return 0;
+    }
     // handle memory bank
     else if (address >= (0xB700)) {
+        printf("MEMORY BANK, NOT HANDLED\n\n\n\n");
         // check the memory bank is enabled
         if ((mem_bank_bits >> (address - 0xB700 / 64)) & 1) {
             return 0;
         }
     }
     // handle virtual functions
-    if (address >= 0x0800 && address < 0x850) {
+    if (address >= 0x0800 && address <= 0x0834) {
         *ret_virt_instruction = virtual_from_address(address);
     }
 
@@ -49,18 +51,21 @@ u32 get_memory(void* memory, byte mem_bank_bits, u32 address, void* ret_data, u3
         }
     }
 
-    if (address == 0x0812)
+    if (address == 0x0812) {
         return getchar();
+    }
     if (address == 0x0816) {
+        // TODO: check if there's a maximum character length
         char buffer[33];
         memset(buffer, 0, 33);
         fgets(&(buffer[0]), 32, stdin);
-        return atoi(buffer);
+        i32 res = atoi(buffer);
+        memcpy(ret_data, &res, 4);
+        return 1;
     }
 
     memcpy(ret_data, memory + address, length);
 
-    // check if
     return 1;
 }
 
