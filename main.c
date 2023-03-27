@@ -7,7 +7,7 @@
 #include "util.c"
 #include "instruction.c"
 
-#define DEBUG_PRINT_INSTRUCTIONS
+/* #define DEBUG_PRINT_INSTRUCTIONS */
 
 typedef struct {
     byte data[64];
