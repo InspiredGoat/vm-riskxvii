@@ -7,8 +7,8 @@
 #include "util.c"
 #include "instruction.c"
 
-#define DEBUG_PRINT_INSTRUCTIONS
-#define DEBUG_PRINT_INSTRUCTION_FILE
+/* #define DEBUG_PRINT_INSTRUCTIONS */
+/* #define DEBUG_PRINT_INSTRUCTION_FILE */
 
 typedef struct {
     byte data[64];
@@ -130,7 +130,6 @@ int main(int argc, char** argv) {
         instruction_print_summary(in, stdout);
 #endif
 
-
         switch (in.name) {
             case INSTRUCTION_COUNT: break;
             case INSTRUCTION_INVALID:
@@ -207,7 +206,9 @@ int main(int argc, char** argv) {
             case LBU:
                 {
                 byte val = 0;
+                printf("lbu, going to: %i\n", R[in.rs1] + in.imm);
                 failed_memory &= get_mem_byte(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
+                printf("lbu, got: %i\n", val);
                 R[in.rd] = val;
                 RT[in.rd] = R_U8_FLAG;
                 }
