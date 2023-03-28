@@ -34,12 +34,13 @@ typedef int32_t         i32;
 typedef uint64_t        u64;
 typedef int64_t         i64;
 
-#define R_CAST(value, type_flag) (R_I32_FLAG == type_flag) * ((i32)value) + \
-                                 (R_U32_FLAG == type_flag) * ((u32)value) + \
-                                 (R_I16_FLAG == type_flag) * ((i16)value) + \
-                                 (R_U16_FLAG == type_flag) * ((u16)value) + \
-                                 (R_I8_FLAG  == type_flag) * ((i8)value) + \
-                                 (R_U8_FLAG  == type_flag) * ((u8)value)
+/* #define R_CAST(value, type_flag) (R_I32_FLAG == type_flag) * ((i32)value) + \ */
+/*                                  (R_U32_FLAG == type_flag) * ((u32)value) + \ */
+/*                                  (R_I16_FLAG == type_flag) * ((i16)value) + \ */
+/*                                  (R_U16_FLAG == type_flag) * ((u16)value) + \ */
+/*                                  (R_I8_FLAG  == type_flag) * ((i8)value) + \ */
+/*                                  (R_U8_FLAG  == type_flag) * ((u8)value) */
+#define R_CAST(value, type_flag)    (i32)value
 
 /* ------------------------------- Instruction types ------------------------------- */
 
