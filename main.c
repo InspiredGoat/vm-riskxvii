@@ -281,10 +281,11 @@ int main(int argc, char** argv) {
                     putchar((byte)memory[0x800]);
                     break;
                 case VIRTUAL_PRINT_SINT:
-                    printf("%i", (i32)memory[address_from_virtual(virt_instruction)]);
+                    print_int_as_hex_string(memory[address_from_virtual(virt_instruction)]);
+                    printf("\n");
                     break;
                 case VIRTUAL_PRINT_UINT:
-                    printf("%x", memory[address_from_virtual(virt_instruction)]);
+                    printf("%x\n", memory[address_from_virtual(virt_instruction)]);
                     break;
                 case VIRTUAL_HALT:
                     printf("CPU Halt Requested\n");
