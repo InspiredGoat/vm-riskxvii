@@ -62,11 +62,11 @@ u32 get_memory(void* memory, byte mem_bank_bits, i32 address, void* ret_data, u3
         return getchar();
     }
     if (address == 0x0816) {
-        // Support up to 11 digit numbers (maximum for 32 bit)
-        char buffer[12];
-        memzero(buffer, 12);
-        fgets(&(buffer[0]), 11, stdin);
+        char buffer[20];
+        memzero(buffer, 20);
+        fgets(&(buffer[0]), 20, stdin);
         i32 res = atoi(buffer);
+
         memcpy(ret_data, &res, 4);
         return 1;
     }
