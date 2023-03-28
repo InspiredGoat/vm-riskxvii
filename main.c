@@ -171,6 +171,9 @@ int main(int argc, char** argv) {
             case ANDI:
                 R[in.rd] = R_CAST(R[in.rs1], RT[in.rs1]) & in.imm;
                 break;
+
+                // 10000000000000000000000000000000
+                // 00000000000000000000000000000001
             case SLL:
                 R[in.rd] = R[in.rs1] << R[in.rs2];
                 break;
@@ -179,7 +182,6 @@ int main(int argc, char** argv) {
                 break;
             case SRA:
                 R[in.rd] = (R[in.rs1] >> R[in.rs2]) | (R[in.rs1] << (32 - R[in.rs2]));
-                printf("YAY I FUCKIGN LOVE SRA\n\n");
                 break;
             case LB:
                 {
