@@ -11,7 +11,7 @@ all:$(TARGET)
 
 $(TARGET):$(OBJ)
 	$(CC) $(ASAN_FLAGS) -o $@ $(OBJ)
-	strip $(OBJ)
+	strip vm_riskxvii
 
 .SUFFIXES: .c .o
 
