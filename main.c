@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
 
     u32*  instruction_memory  = (u32*) &memory[0];
     byte* data_memory         = &memory[INSTRUCTION_MEMORY_SIZE];
-    /* byte* dynamic_memory      = &memory[0xb700]; */
-    /* MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700]; */
+    byte* dynamic_memory      = &memory[0xb700];
+    MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700];
     byte dynamic_banks_bit_array = 0; // stores whether or not a bank is used as a bit.
 
     memzero(memory, TOTAL_MEM_SIZE);
@@ -172,15 +172,10 @@ int main(int argc, char** argv) {
                 R[in.rd] = R_CAST(R[in.rs1], RT[in.rs1]) & in.imm;
                 break;
 
-                // 10000000000000000000000000000000
-                // 00000000000000000000000000000001
-                // 00000000000000011000000000000000
             case SLL:
-                printf("SLL %i, %i\n", R[in.rs1], R[in.rs2]);
                 R[in.rd] = (u32)R[in.rs1] << (u32)R[in.rs2];
                 break;
             case SRL:
-                printf("SRL %i, %i\n", R[in.rs1], R[in.rs2]);
                 R[in.rd] = (u32)R[in.rs1] >> (u32)R[in.rs2];
                 break;
             case SRA:
