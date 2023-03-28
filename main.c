@@ -7,7 +7,8 @@
 #include "util.c"
 #include "instruction.c"
 
-/* #define DEBUG_PRINT_INSTRUCTIONS */
+#define DEBUG_PRINT_INSTRUCTIONS
+#define DEBUG_PRINT_INSTRUCTION_FILE
 
 typedef struct {
     byte data[64];
@@ -80,6 +81,32 @@ int main(int argc, char** argv) {
     /* instruction_memory[9]  = 0x80f72223; */
     /* instruction_memory[10] = 0x00000513; */
     /* instruction_memory[11] = 0x00008067; */
+
+#ifdef DEBUG_PRINT_INSTRUCTION_FILE
+    printf("PC\tCode\t\tName\tRd\tR1\tR2\tImm\n");
+    Instruction in;
+
+    do {
+        // TODO: check program counter is valid
+        u32 instruction_data = instruction_memory[program_counter / 4];
+        VirtualInstructionName virt_instruction = VIRTUAL_NONE;
+        byte failed_memory = 0;
+        byte jumped = 0;
+
+        in = instruction_decode(instruction_data);
+        if (in.name == INSTRUCTION_INVALID)
+            break;
+
+        printf("%x:\t", program_counter);
+        print_int_as_hex_string(instruction_data);
+        putchar('\t');
+        instruction_print_summary(in, stdout);
+        program_counter += 4;
+    }
+    while (in.name != INSTRUCTION_INVALID);
+    free(memory);
+    exit(0);
+#endif
 
 #ifdef DEBUG_PRINT_INSTRUCTIONS
     printf("PC\tCode\t\tName\tRd\tR1\tR2\tImm\n");
@@ -281,11 +308,10 @@ int main(int argc, char** argv) {
                     putchar((byte)memory[0x800]);
                     break;
                 case VIRTUAL_PRINT_SINT:
-                    print_int_as_hex_string(memory[address_from_virtual(virt_instruction)]);
-                    printf("\n");
+                    printf("%i", (i32)memory[address_from_virtual(virt_instruction)]);
                     break;
                 case VIRTUAL_PRINT_UINT:
-                    printf("%x\n", memory[address_from_virtual(virt_instruction)]);
+                    printf("%x", memory[address_from_virtual(virt_instruction)]);
                     break;
                 case VIRTUAL_HALT:
                     printf("CPU Halt Requested\n");
