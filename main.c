@@ -176,9 +176,11 @@ int main(int argc, char** argv) {
                 // 00000000000000000000000000000001
                 // 00000000000000011000000000000000
             case SLL:
+                printf("SLL %i, %i\n", R[in.rs1], R[in.rs2]);
                 R[in.rd] = (u32)R[in.rs1] << (u32)R[in.rs2];
                 break;
             case SRL:
+                printf("SRL %i, %i\n", R[in.rs1], R[in.rs2]);
                 R[in.rd] = (u32)R[in.rs1] >> (u32)R[in.rs2];
                 break;
             case SRA:
