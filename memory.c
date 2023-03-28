@@ -20,6 +20,10 @@ byte set_memory(void* memory, byte* avail_blocks, i32 address, void* data, u32 l
         if (!avail_blocks[block]) {
             return 0;
         }
+        else {
+            memcpy(memory + (address - 0xB700), data, (unsigned long) length);
+            return 1;
+        }
     }
     // handle virtual functions
     if (address >= 0x0800 && address <= 0x0834) {
@@ -55,6 +59,10 @@ u32 get_memory(void* memory, byte* avail_blocks, i32 address, void* ret_data, u3
         i32 block = ((address - NON_DYNAMIC_SIZE) / 64);
         if (!avail_blocks[block]) {
             return 0;
+        }
+        else {
+            memcpy(ret_data, memory + (address - 0xb700), length);
+            return 1;
         }
     }
 

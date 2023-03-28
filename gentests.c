@@ -133,6 +133,8 @@ int main() {
     u32 R[32];
     memzero(R, sizeof(u32) * 32);
 
+    printf("%x size\n", INSTRUCTION_MEMORY_SIZE + DATA_MEMORY_SIZE + 0xff + (128 * 64));
+
     tests_begin("tests/");
 
     // first test hurray!

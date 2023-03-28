@@ -335,7 +335,7 @@ int main(int argc, char** argv) {
                             found_block = 1;
                             for (u32 j = i; j < min_blocks; j++) {
                                 if (j == i) {
-                                    R[28] = NON_DYNAMIC_SIZE + j * 64;
+                                    R[28] = 0xb700 + j * 64;
                                 }
 
                                 avail_blocks[j] = 1;
