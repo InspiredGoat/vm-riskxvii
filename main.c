@@ -37,13 +37,14 @@ int main(int argc, char** argv) {
     u32*  instruction_memory  = (u32*) &memory[0];
     byte* data_memory         = &memory[INSTRUCTION_MEMORY_SIZE];
     byte* dynamic_memory      = &memory[0xb700];
-    MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700];
+    /* MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700]; */
     byte dynamic_banks_bit_array = 0; // stores whether or not a bank is used as a bit.
+    byte dynamic_banks[128];
+    memzero(dynamic_banks, 128);
 
     memzero(memory, TOTAL_MEM_SIZE);
 
     // Scope to avoid using input_file pointer again
-
     {
         FILE* input_file = fopen(argv[1], "r");
         if (input_file == NULL) {
@@ -64,25 +65,6 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
-
-    /*           opcode        00000000000000000000000001111111; */
-    /*           rd            00000000000000000000111110000000; */
-    /*           rs1           00000000000011111000000000000000; */
-    /*           func3         00000000000000000111000000000000; */
-
-    /* instruction_memory[0]  = 0x7ff00113; */
-    /* instruction_memory[1]  = 0x00c000ef; */
-    /* instruction_memory[2]  = 0x000017b7; */
-    /* instruction_memory[3]  = 0x80078623; */
-
-    /* instruction_memory[4]  = 0x00001737; */
-    /* instruction_memory[5]  = 0x81670793; */
-    /* instruction_memory[6]  = 0x0007a683; */
-    /* instruction_memory[7]  = 0x0007a783; */
-    /* instruction_memory[8]  = 0x00d787b3; */
-    /* instruction_memory[9]  = 0x80f72223; */
-    /* instruction_memory[10] = 0x00000513; */
-    /* instruction_memory[11] = 0x00008067; */
 
 #ifdef DEBUG_PRINT_INSTRUCTION_FILE
     printf("PC\tCode\t\tName\tRd\tR1\tR2\tImm\n");
@@ -335,10 +317,64 @@ int main(int argc, char** argv) {
                     printf("%x\n", *((u32*)&memory[0x828]));
                     break;
                 case VIRTUAL_HEAP_ALLOC:
-                    // TODO: add this
+                    {
+                    u32 size = *((u32*)&memory[0x830]);
+                    u32 min_blocks = (size / 64) + 1;
+                    byte found_block = 0;
+                    for (u32 i = 0; i < MAX_BANKS; i++) {
+                        u32 free_count = 0;
+                        for (u32 j = 0; j < min_blocks; j++) {
+                            if (dynamic_banks[j]  == 0) {
+                                free_count += 1;
+                            }
+                        }
+
+                        if (free_count == min_blocks) {
+                            found_block = 1;
+                            for (u32 j = i; j < min_blocks; j++) {
+                                if (j == i) {
+                                    R[28] = NON_DYNAMIC_SIZE + j * 64;
+                                }
+
+                                dynamic_banks[j] = 1;
+                            }
+                        }
+                    }
+
+                    if (!found_block) {
+                        printf("Ran out of dynamic memory!");
+                        free(memory);
+                        exit(0);
+                    }
+                    
+                    }
                     break;
                 case VIRTUAL_HEAP_FREE:
-                    // TODO: add this
+                    {
+                        i32 address = *((u32*)&memory[0x834]);
+                        i32 block = (address - (NON_DYNAMIC_SIZE)) / 64;
+                        byte found_block = 0;
+
+                        if (address >= NON_DYNAMIC_SIZE && address < TOTAL_MEM_SIZE) {
+                            if (address % 4 == 0 || address % 64 == 0) {
+                                if (dynamic_banks[block] == 1) {
+                                    dynamic_banks[block] = 0;
+                                    found_block = 1;
+                                }
+                            }
+
+                        }
+
+                        if (!found_block) {
+                            printf("Illegal operation: ");
+                            print_int_as_hex_string(instruction_data);
+                            printf("\n");
+                            register_dump(program_counter, R);
+                            free(memory);
+                            exit(0);
+                        }
+                    }
+
                     break;
             }
         }
