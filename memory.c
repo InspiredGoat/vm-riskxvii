@@ -8,6 +8,9 @@
 // Returns 0 if invalid memory, 1 if valid, 2 if a virtual isntruction was called
 byte set_memory(void* memory, byte mem_bank_bits, i32 address, void* data, u32 length, VirtualInstructionName* ret_virt_instruction) {
     *ret_virt_instruction = VIRTUAL_NONE;
+    if (address < 0)
+        address = (2 << 11) + address;
+
     if (address < 0x0400 || address + length > (0xD700)) {
         return 0;
     }

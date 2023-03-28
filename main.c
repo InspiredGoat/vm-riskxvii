@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
         in = instruction_decode(instruction_data);
 
 #ifdef DEBUG_PRINT_INSTRUCTIONS
-        printf("%i\t", program_counter);
+        printf("%x:\t", program_counter);
         print_int_as_hex_string(instruction_data);
         putchar('\t');
         instruction_print_summary(in, stdout);
@@ -218,7 +218,6 @@ int main(int argc, char** argv) {
                 break;
             case BEQ:
                 if (R[in.rs1] == R[in.rs2]) {
-                    /* printf("%i == %i, jumping to %i\n\n", R[in.rs1], R[in.rs2], in.imm ); */
                     program_counter += in.imm;
                     jumped = 1;
                 }

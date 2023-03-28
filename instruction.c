@@ -34,6 +34,11 @@ Instruction instruction_decode(u32 data) {
         if (type == TYPE_S) {
         instruction.imm  = ((0b00000000000000000000111110000000) & data) >> 7;
         instruction.imm |= ((0b11111110000000000000000000000000) & data) >> 20;
+
+        if ((instruction.imm >= (2 << 10))) {
+            instruction.imm = instruction.imm - (2 << 11);
+        }
+        instruction.imm_len = 12;
         }
         else {
         instruction.imm  = ((0b00000000000000000000111100000000) & data) >> 7;
@@ -69,7 +74,6 @@ Instruction instruction_decode(u32 data) {
 
         if (instruction.imm >= (2 << 19)) {
             instruction.imm = instruction.imm - (2 << 20);
-            instruction.imm = instruction.imm << 1;
         }
         }
     }
