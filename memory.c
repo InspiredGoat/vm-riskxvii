@@ -45,7 +45,6 @@ byte set_mem_u32(void* memory, byte mem_bank_bits, i32 address, u32 value, Virtu
 
 u32 get_memory(void* memory, byte mem_bank_bits, i32 address, void* ret_data, u32 length) {
 
-    // TODO: test extent of this
     if (address < 0)
         address = (2 << 11) + address;
 
@@ -63,10 +62,10 @@ u32 get_memory(void* memory, byte mem_bank_bits, i32 address, void* ret_data, u3
         return getchar();
     }
     if (address == 0x0816) {
-        // TODO: check if there's a maximum character length
-        char buffer[33];
-        memset(buffer, 0, 33);
-        fgets(&(buffer[0]), 32, stdin);
+        // Support up to 11 digit numbers (maximum for 32 bit)
+        char buffer[12];
+        memzero(buffer, 12);
+        fgets(&(buffer[0]), 11, stdin);
         i32 res = atoi(buffer);
         memcpy(ret_data, &res, 4);
         return 1;

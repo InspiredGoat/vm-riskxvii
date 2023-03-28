@@ -24,6 +24,7 @@ int main(int argc, char** argv) {
 
     byte should_terminate = 0;
     u32 program_counter = 0;
+    u32 program_counter_prev = 0;
     u32 R[REG_COUNT];
 
     // 3 bits per register type == 24 bytes
@@ -115,7 +116,7 @@ int main(int argc, char** argv) {
         u64 executed_instructions_count = 0;
     while(program_counter < INSTRUCTION_MEMORY_SIZE) {
         Instruction in;
-        // TODO: check program counter is valid
+
         u32 instruction_data = instruction_memory[program_counter / 4];
         VirtualInstructionName virt_instruction = VIRTUAL_NONE;
         byte failed_memory = 0;
@@ -129,6 +130,7 @@ int main(int argc, char** argv) {
         putchar('\t');
         instruction_print_summary(in, stdout);
 #endif
+
 
         switch (in.name) {
             case INSTRUCTION_COUNT: break;
@@ -183,7 +185,7 @@ int main(int argc, char** argv) {
                 char val = 0;
                 failed_memory &= get_mem_char(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
-                RT[in.rd] = R_I8_FLAG;
+                /* RT[in.rd] = R_I8_FLAG; */
                 }
                 break;
             case LH:
@@ -191,7 +193,7 @@ int main(int argc, char** argv) {
                 i16 val = 0;
                 failed_memory &= get_mem_i16(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
-                RT[in.rd] = R_I16_FLAG;
+                /* RT[in.rd] = R_I16_FLAG; */
                 }
                 break;
             case LW:
@@ -200,7 +202,7 @@ int main(int argc, char** argv) {
 
                 failed_memory &= get_mem_i32(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
-                RT[in.rd] = R_I32_FLAG;
+                /* RT[in.rd] = R_I32_FLAG; */
                 }
                 break;
             case LBU:
@@ -208,7 +210,7 @@ int main(int argc, char** argv) {
                 byte val = 0;
                 failed_memory &= get_mem_byte(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
-                RT[in.rd] = R_U8_FLAG;
+                /* RT[in.rd] = R_U8_FLAG; */
                 }
                 break;
             case LHU:
@@ -216,7 +218,7 @@ int main(int argc, char** argv) {
                 u16 val = 0;
                 failed_memory &= get_mem_u16(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
-                RT[in.rd] = R_U16_FLAG;
+                /* RT[in.rd] = R_U16_FLAG; */
                 }
                 break;
             case SB:
@@ -340,18 +342,18 @@ int main(int argc, char** argv) {
             }
         }
 
+        R[0] = 0;
         executed_instructions_count = executed_instructions_count + 1;
-        printf("R[10] = %i, %x\n", R[10], R[10]);
-        printf("R[15] = %i, %x\n\n", R[10], R[10]);
 
         if (!jumped) {
             program_counter += 4;
         }
 #ifdef DEBUG_PRINT_JUMPS
         else {
-            printf("Jumped -> %x (%i)\n\n", program_counter, program_counter);
+            printf("Jumped %x -> %x (%i)\n\n", program_counter_prev, program_counter, program_counter);
         }
 #endif
+        program_counter_prev = program_counter;
     }
 
     register_dump(program_counter, R);

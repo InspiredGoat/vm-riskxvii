@@ -3,13 +3,13 @@
 - Basic loop
 - Instruction decode
 - Executing instructions
+- **Testing system**
+- Todos
 
 # Missing
 - Pass most test cases
 - Error handling
-- **Testing system**
 - Heap maps
-- Todos
 - **pretty code up**
 
 # Bugs

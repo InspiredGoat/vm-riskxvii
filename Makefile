@@ -23,8 +23,12 @@ try: all
 again: clean all
 	echo done
 
-test:
-	gcc 
+tests: all
+	$(CC) $(CFLAGS) $(ASAN_FLAGS) gentests.c
+	./a.out
+
+run_tests: tests
+	./runtests.sh
 
 clean:
 	rm -f *.o *.obj $(TARGET)
