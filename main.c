@@ -8,7 +8,6 @@
 #include "instruction.c"
 
 /* #define DEBUG_PRINT_INSTRUCTIONS */
-/* #define DEBUG_PRINT_JUMPS */
 /* #define DEBUG_PRINT_INSTRUCTION_FILE */
 
 typedef struct {
@@ -24,7 +23,6 @@ int main(int argc, char** argv) {
 
     byte should_terminate = 0;
     u32 program_counter = 0;
-    u32 program_counter_prev = 0;
     u32 R[REG_COUNT];
 
     // 3 bits per register type == 24 bytes
@@ -36,8 +34,6 @@ int main(int argc, char** argv) {
 
     u32*  instruction_memory  = (u32*) &memory[0];
     byte* data_memory         = &memory[INSTRUCTION_MEMORY_SIZE];
-    byte* dynamic_memory      = &memory[0xb700];
-    /* MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700]; */
     byte avail_blocks[128];
     memzero(avail_blocks, 128);
 
@@ -320,6 +316,13 @@ int main(int argc, char** argv) {
                     u32 size = *((u32*)&memory[0x830]);
                     u32 min_blocks = (size / 64) + 1;
                     byte found_block = 0;
+                
+                    if (min_blocks > MAX_BANKS) {
+                        printf("Ran out of dynamic memory!");
+                        free(memory);
+                        exit(0);
+                    }
+
                     for (u32 i = 0; i < MAX_BANKS; i++) {
                         u32 free_count = 0;
                         for (u32 j = 0; j < min_blocks; j++) {
@@ -337,6 +340,7 @@ int main(int argc, char** argv) {
 
                                 avail_blocks[j] = 1;
                             }
+                            break;
                         }
                     }
 
@@ -384,12 +388,6 @@ int main(int argc, char** argv) {
         if (!jumped) {
             program_counter += 4;
         }
-#ifdef DEBUG_PRINT_JUMPS
-        else {
-            printf("Jumped %x -> %x (%i)\n\n", program_counter_prev, program_counter, program_counter);
-        }
-#endif
-        program_counter_prev = program_counter;
     }
 
     register_dump(program_counter, R);

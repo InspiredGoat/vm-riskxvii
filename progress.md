@@ -7,6 +7,7 @@
 - Todos
 
 # Missing
+- Lower size
 - Pass most test cases
 - Error handling
 - Heap maps
