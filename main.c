@@ -179,6 +179,7 @@ int main(int argc, char** argv) {
                 break;
             case SRA:
                 R[in.rd] = (R[in.rs1] >> R[in.rs2]) | (R[in.rs1] << (32 - R[in.rs2]));
+                printf("YAY I FUCKIGN LOVE SRA\n\n");
                 break;
             case LB:
                 {
