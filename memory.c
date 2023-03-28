@@ -49,7 +49,7 @@ u32 get_memory(void* memory, byte mem_bank_bits, i32 address, void* ret_data, u3
     if (address < 0)
         address = (2 << 11) + address;
 
-    if (address < 0x400 || address + length > (0xD700))
+    if (address < 0x000 || address + length > (0xD700))
         return 0;
     // handle memory bank
     else if (address >= (0xB700)) {

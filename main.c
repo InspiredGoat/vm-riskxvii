@@ -8,6 +8,7 @@
 #include "instruction.c"
 
 /* #define DEBUG_PRINT_INSTRUCTIONS */
+/* #define DEBUG_PRINT_JUMPS */
 /* #define DEBUG_PRINT_INSTRUCTION_FILE */
 
 typedef struct {
@@ -206,9 +207,7 @@ int main(int argc, char** argv) {
             case LBU:
                 {
                 byte val = 0;
-                printf("lbu, going to: %i\n", R[in.rs1] + in.imm);
                 failed_memory &= get_mem_byte(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
-                printf("lbu, got: %i\n", val);
                 R[in.rd] = val;
                 RT[in.rd] = R_U8_FLAG;
                 }
@@ -270,7 +269,7 @@ int main(int argc, char** argv) {
                 break;
             case BGE:
                 if ((signed)R[in.rs1] >= (signed)R[in.rs2]) {
-                    program_counter += in.imm << 1;
+                    program_counter += in.imm;
                     jumped = 1;
                 }
                 break;
@@ -283,7 +282,7 @@ int main(int argc, char** argv) {
             case JAL:
                 R[in.rd] = program_counter + 4;
                 // TODO: check if its (in.imm << 1) or not
-                program_counter += in.imm ;
+                program_counter += in.imm;
                 jumped = 1;
                 break;
             case JALR:
@@ -345,8 +344,14 @@ int main(int argc, char** argv) {
 
         executed_instructions_count = executed_instructions_count + 1;
 
-        if (!jumped)
+        if (!jumped) {
             program_counter += 4;
+        }
+#ifdef DEBUG_PRINT_JUMPS
+        else {
+            printf("Jumped -> %x (%i)\n\n", program_counter, program_counter);
+        }
+#endif
     }
 
     register_dump(program_counter, &R[0]);
