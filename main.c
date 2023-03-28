@@ -325,8 +325,8 @@ int main(int argc, char** argv) {
 
                     for (u32 i = 0; i < MAX_BANKS; i++) {
                         u32 free_count = 0;
-                        for (u32 j = 0; j < min_blocks; j++) {
-                            if (avail_blocks[j]  == 0) {
+                        for (u32 j = i; j < min_blocks; j++) {
+                            if (avail_blocks[j] == 0) {
                                 free_count += 1;
                             }
                         }
