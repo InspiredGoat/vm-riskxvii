@@ -16,9 +16,8 @@ byte set_memory(void* memory, byte* avail_blocks, i32 address, void* data, u32 l
     }
     // handle memory bank
     else if (address >= (0xB700)) {
-        printf("MEMORY BANK, NOT HANDLED\n\n\n\n");
-        // check the memory bank is enabled
-        if ((avail_blocks >> (address - 0xB700 / 64)) & 1) {
+        i32 block = ((address - NON_DYNAMIC_SIZE) / 64);
+        if (!avail_blocks[block]) {
             return 0;
         }
     }
@@ -53,7 +52,10 @@ u32 get_memory(void* memory, byte* avail_blocks, i32 address, void* ret_data, u3
     // handle memory bank
     else if (address >= (0xB700)) {
         // check the memory bank is enabled
-        // TODO: check membank
+        i32 block = ((address - NON_DYNAMIC_SIZE) / 64);
+        if (!avail_blocks[block]) {
+            return 0;
+        }
     }
 
     if (address == 0x0812) {

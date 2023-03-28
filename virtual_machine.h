@@ -117,18 +117,18 @@ u32 address_from_virtual(VirtualInstructionName name);
 /* -------------------------------      Memory       ------------------------------- */ 
 
 /* Returns 0 if invalid memory, 1 if valid, 2 if a virtual instruction was called */
-byte set_mem(void* memory, byte mem_bank_bits, i32 address, void* data, u32 length, VirtualInstructionName* ret_virt_instruction);
-byte set_mem_byte(void* memory, byte mem_bank_bits, i32 address, byte value, VirtualInstructionName* ret_virt_instruction);
-byte set_mem_u16(void* memory, byte mem_bank_bits, i32 address, u16 value, VirtualInstructionName* ret_virt_instruction);
-byte set_mem_u32(void* memory, byte mem_bank_bits, i32 address, u32 value, VirtualInstructionName* ret_virt_instruction);
+byte set_mem(void* memory, byte* avail_blocks, i32 address, void* data, u32 length, VirtualInstructionName* ret_virt_instruction);
+byte set_mem_byte(void* memory, byte* avail_blocks, i32 address, byte value, VirtualInstructionName* ret_virt_instruction);
+byte set_mem_u16(void* memory, byte* avail_blocks, i32 address, u16 value, VirtualInstructionName* ret_virt_instruction);
+byte set_mem_u32(void* memory, byte* avail_blocks, i32 address, u32 value, VirtualInstructionName* ret_virt_instruction);
 
-u32 get_mem(void* memory, byte mem_bank_bits, i32 address, void* ret_data, u32 length);
-u32 get_mem_char(void* memory, byte mem_bank_bits, i32 address, char* ret_value);
-u32 get_mem_byte(void* memory, byte mem_bank_bits, i32 address, byte* ret_value);
-u32 get_mem_i16(void* memory, byte mem_bank_bits, i32 address, i16* ret_value);
-u32 get_mem_u16(void* memory, byte mem_bank_bits, i32 address, u16* ret_value);
-u32 get_mem_i32(void* memory, byte mem_bank_bits, i32 address, i32* ret_value);
-u32 get_mem_u32(void* memory, byte mem_bank_bits, i32 address, u32* ret_value);
+u32 get_mem(void* memory, byte* avail_blocks, i32 address, void* ret_data, u32 length);
+u32 get_mem_char(void* memory, byte* avail_blocks, i32 address, char* ret_value);
+u32 get_mem_byte(void* memory, byte* avail_blocks, i32 address, byte* ret_value);
+u32 get_mem_i16(void* memory, byte* avail_blocks, i32 address, i16* ret_value);
+u32 get_mem_u16(void* memory, byte* avail_blocks, i32 address, u16* ret_value);
+u32 get_mem_i32(void* memory, byte* avail_blocks, i32 address, i32* ret_value);
+u32 get_mem_u32(void* memory, byte* avail_blocks, i32 address, u32* ret_value);
 
 
 

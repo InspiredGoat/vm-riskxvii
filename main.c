@@ -38,9 +38,8 @@ int main(int argc, char** argv) {
     byte* data_memory         = &memory[INSTRUCTION_MEMORY_SIZE];
     byte* dynamic_memory      = &memory[0xb700];
     /* MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700]; */
-    byte dynamic_banks_bit_array = 0; // stores whether or not a bank is used as a bit.
-    byte dynamic_banks[128];
-    memzero(dynamic_banks, 128);
+    byte avail_blocks[128];
+    memzero(avail_blocks, 128);
 
     memzero(memory, TOTAL_MEM_SIZE);
 
@@ -166,7 +165,7 @@ int main(int argc, char** argv) {
             case LB:
                 {
                 char val = 0;
-                failed_memory &= get_mem_char(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
+                failed_memory &= get_mem_char(memory, avail_blocks, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
                 /* RT[in.rd] = R_I8_FLAG; */
                 }
@@ -174,7 +173,7 @@ int main(int argc, char** argv) {
             case LH:
                 {
                 i16 val = 0;
-                failed_memory &= get_mem_i16(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
+                failed_memory &= get_mem_i16(memory, avail_blocks, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
                 /* RT[in.rd] = R_I16_FLAG; */
                 }
@@ -183,7 +182,7 @@ int main(int argc, char** argv) {
                 {
                 i32 val = 0;
 
-                failed_memory &= get_mem_i32(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
+                failed_memory &= get_mem_i32(memory, avail_blocks, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
                 /* RT[in.rd] = R_I32_FLAG; */
                 }
@@ -191,7 +190,7 @@ int main(int argc, char** argv) {
             case LBU:
                 {
                 byte val = 0;
-                failed_memory &= get_mem_byte(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
+                failed_memory &= get_mem_byte(memory, avail_blocks, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
                 /* RT[in.rd] = R_U8_FLAG; */
                 }
@@ -199,21 +198,21 @@ int main(int argc, char** argv) {
             case LHU:
                 {
                 u16 val = 0;
-                failed_memory &= get_mem_u16(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, &val);
+                failed_memory &= get_mem_u16(memory, avail_blocks, R[in.rs1] + in.imm, &val);
                 R[in.rd] = val;
                 /* RT[in.rd] = R_U16_FLAG; */
                 }
                 break;
             case SB:
                 {
-                failed_memory &= set_mem_byte(memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
+                failed_memory &= set_mem_byte(memory, avail_blocks, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
                 }
                 break;
             case SH:
-                failed_memory &= set_mem_u16( memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
+                failed_memory &= set_mem_u16( memory, avail_blocks, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
                 break;
             case SW:
-                failed_memory &= set_mem_u32( memory, dynamic_banks_bit_array, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
+                failed_memory &= set_mem_u32( memory, avail_blocks, R[in.rs1] + in.imm, R[in.rs2], &virt_instruction);
                 break;
             case SLT:
                 R[in.rd] = R_CAST(R[in.rs1], RT[in.rs1]) < R_CAST(R[in.rs2], RT[in.rs2]);
@@ -324,7 +323,7 @@ int main(int argc, char** argv) {
                     for (u32 i = 0; i < MAX_BANKS; i++) {
                         u32 free_count = 0;
                         for (u32 j = 0; j < min_blocks; j++) {
-                            if (dynamic_banks[j]  == 0) {
+                            if (avail_blocks[j]  == 0) {
                                 free_count += 1;
                             }
                         }
@@ -336,7 +335,7 @@ int main(int argc, char** argv) {
                                     R[28] = NON_DYNAMIC_SIZE + j * 64;
                                 }
 
-                                dynamic_banks[j] = 1;
+                                avail_blocks[j] = 1;
                             }
                         }
                     }
@@ -357,8 +356,8 @@ int main(int argc, char** argv) {
 
                         if (address >= NON_DYNAMIC_SIZE && address < TOTAL_MEM_SIZE) {
                             if (address % 4 == 0 || address % 64 == 0) {
-                                if (dynamic_banks[block] == 1) {
-                                    dynamic_banks[block] = 0;
+                                if (avail_blocks[block] == 1) {
+                                    avail_blocks[block] = 0;
                                     found_block = 1;
                                 }
                             }
