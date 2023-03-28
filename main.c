@@ -331,7 +331,7 @@ int main(int argc, char** argv) {
                             }
                         }
 
-                        if (free_count == min_blocks) {
+                        if (free_count >= min_blocks) {
                             found_block = 1;
                             for (u32 j = i; j < min_blocks; j++) {
                                 if (j == i) {
@@ -369,7 +369,7 @@ int main(int argc, char** argv) {
                         }
 
                         if (!found_block) {
-                            printf("Illegal operation: ");
+                            printf("Illegal Operation: ");
                             print_int_as_hex_string(instruction_data);
                             printf("\n");
                             register_dump(program_counter, R);
