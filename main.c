@@ -308,10 +308,10 @@ int main(int argc, char** argv) {
                     putchar((byte)memory[0x800]);
                     break;
                 case VIRTUAL_PRINT_SINT:
-                    printf("%i", (i32)memory[address_from_virtual(virt_instruction)]);
+                    printf("%i", *((i32*)&memory[0x804]));
                     break;
                 case VIRTUAL_PRINT_UINT:
-                    printf("%x", memory[address_from_virtual(virt_instruction)]);
+                    printf("%x", *((u32*)&memory[0x808]));
                     break;
                 case VIRTUAL_HALT:
                     printf("CPU Halt Requested\n");
@@ -331,7 +331,7 @@ int main(int argc, char** argv) {
                     register_dump(program_counter, R);
                     break;
                 case VIRTUAL_DUMP_MEM_W:
-                    printf("%x\n", memory[address_from_virtual(virt_instruction)]);
+                    printf("%x\n", *((u32*)&memory[0x828]));
                     break;
                 case VIRTUAL_HEAP_ALLOC:
                     // TODO: add this
