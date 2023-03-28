@@ -174,11 +174,12 @@ int main(int argc, char** argv) {
 
                 // 10000000000000000000000000000000
                 // 00000000000000000000000000000001
+                // 00000000000000011000000000000000
             case SLL:
-                R[in.rd] = R[in.rs1] << R[in.rs2];
+                R[in.rd] = (i32)R[in.rs1] << (i32)R[in.rs2];
                 break;
             case SRL:
-                R[in.rd] = R[in.rs1] >> R[in.rs2];
+                R[in.rd] = (i32)R[in.rs1] >> (i32)R[in.rs2];
                 break;
             case SRA:
                 R[in.rd] = (R[in.rs1] >> R[in.rs2]) | (R[in.rs1] << (32 - R[in.rs2]));
