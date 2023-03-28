@@ -92,14 +92,17 @@ typedef struct {
 } Instruction;
 
 
-/* -------------------------------  Printing  stuff  ------------------------------- */
+/* -------------------------------      Utility      ------------------------------- */
 
 void print_int_as_hex_string(u32 integer);
+void print_int_as_hex_string_file(FILE* out, u32 integer);
 
 void register_dump(u32 program_counter, const u32* registers);
 void register_dump_text(char* buffer, u32 program_counter, const u32* registers);
 void instruction_print_name(InstructionName name, FILE* file);
 void instruction_print_summary(Instruction instruction, FILE* file);
+
+void memzero(void* data, u32 size);
 
 
 /* -------------------------------    Instruction    ------------------------------- */

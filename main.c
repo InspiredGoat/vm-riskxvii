@@ -28,8 +28,8 @@ int main(int argc, char** argv) {
 
     // 3 bits per register type == 24 bytes
     byte RT[32];
-    memset(R, 0, 32);
-    memset(RT, 0, 32);
+    memzero(R, sizeof(u32) * 32);
+    memzero(RT, 32);
 
     byte* memory = malloc(TOTAL_MEM_SIZE);
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     /* MemoryBank* dynamic_banks = (MemoryBank*) &memory[0xb700]; */
     byte dynamic_banks_bit_array = 0; // stores whether or not a bank is used as a bit.
 
-    memset(memory, 0, TOTAL_MEM_SIZE);
+    memzero(memory, TOTAL_MEM_SIZE);
 
     // Scope to avoid using input_file pointer again
 
@@ -88,7 +88,6 @@ int main(int argc, char** argv) {
     Instruction in;
 
     do {
-        // TODO: check program counter is valid
         u32 instruction_data = instruction_memory[program_counter / 4];
         VirtualInstructionName virt_instruction = VIRTUAL_NONE;
         byte failed_memory = 0;
@@ -281,7 +280,6 @@ int main(int argc, char** argv) {
                 break;
             case JAL:
                 R[in.rd] = program_counter + 4;
-                // TODO: check if its (in.imm << 1) or not
                 program_counter += in.imm;
                 jumped = 1;
                 break;
@@ -343,6 +341,8 @@ int main(int argc, char** argv) {
         }
 
         executed_instructions_count = executed_instructions_count + 1;
+        printf("R[10] = %i, %x\n", R[10], R[10]);
+        printf("R[15] = %i, %x\n\n", R[10], R[10]);
 
         if (!jumped) {
             program_counter += 4;
@@ -354,7 +354,7 @@ int main(int argc, char** argv) {
 #endif
     }
 
-    register_dump(program_counter, &R[0]);
+    register_dump(program_counter, R);
     // OS will do it anyways, but if it counts as a "memory leak" I get a ZERO
     free(memory);
     return 0;

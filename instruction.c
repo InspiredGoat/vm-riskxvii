@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "virtual_machine.h"
 
 
